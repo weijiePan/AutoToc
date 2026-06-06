@@ -1,0 +1,37 @@
+/*#F5E7DE#F2BFA4
+Kaffestuggu*/
+header{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 4em;
+  background-color:#1f00eb;
+  
+}
+.sandwichIcon{
+
+  height:1.5em;
+  width:1.5em;
+
+
+  
+}
+.sandwichIcon rect{
+  width:1.5em;
+  height:0.2em; 
+  fill:#b763f2;
+}
+
+body{
+  background-color: #ffff;
+  padding: 0;
+  margin: 0;
+  width:100%;
+  height: 100%;
+}
+html{
+  width:100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+}

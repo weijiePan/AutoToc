@@ -1,0 +1,33 @@
+/*#F5E7DE#F2BFA4
+Kaffestuggu*/
+
+
+.documentNameDisplay{
+    display: block;
+    height:70%;
+    width: 80%;
+    margin-top: 2em;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: #5213f9;
+    padding: 2em;
+    padding-left: 2em;
+    border-radius: 0.5em;
+}
+#btnDiv{
+    display: flex;
+    justify-content: space-evenly;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 2em;
+}
+.btn{
+    font-size: 1.3em;
+    font-family:Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    color:#1D004F;
+    background-color: #b763f2;
+    width:7em;
+    height: 2em;
+    border-radius: 0.5em;
+}
