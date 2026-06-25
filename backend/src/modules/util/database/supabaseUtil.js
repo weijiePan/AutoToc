@@ -3,7 +3,8 @@ import {ContainerClient} from "@azure/storage-blob"
 import {v4 as uuidv4} from "uuid"
 import dotenv from "dotenv"
 import path from "path"
-import {uploadBlock, completeUploadAzure} from "./blob_storage.js"
+import {uploadBlock, completeUploadAzure, processUpload} from "./blob_storage.js"
+
 
 dotenv.config({path:path.resolve(process.cwd(), "../../../../", ".env")});
 
@@ -15,7 +16,7 @@ async function getClient(){
 async function initiateUpload(total_chunk){
     const table = await (await getClient()).from("upload");
     const id = uuidv4(); 
-    const resp = await table.insert([{upload_id:id, current_chunk:0, total_chunks:total_chunk, iscompleted:0}]);
+    const resp = await table.insert([{upload_id:id, current_chunk:0, total_chunks:total_chunk, is_uploaded:0, is_processed}]);
     if(resp.success == true){
         return id;
     }else{
@@ -70,9 +71,9 @@ async function completeUpload(uploadId){
     const azureResp = await completeUploadAzure(uploadId, chunkIds);
       if(azureResp.error == undefined){
          //update in supabase
-        const supabaseResp = await table.update({"iscompleted":1}).eq("upload_id", uploadId);
+        const supabaseResp = await table.update({"is_uploaded":1}).eq("upload_id", uploadId);
         if(supabaseResp.success == true){
-            return "success";
+            return ({success:true});
         }else{
             return supabaseResp;
         }
@@ -81,10 +82,30 @@ async function completeUpload(uploadId){
     }
    
 }
+async function completeProcessingUpload(){
+    //process document
+    const resp = await processUpload();
+    //change supabase to reflecte completion
+    if(resp.success){
+        const table = await (await getClient()).from("upload");
+        const supabaseResp = await table.update({"is_processed":1});
+        if(supabaseResp){
+            //return export location
+            return resp.exportLocation;
+        }else{
+            throw new Error(supabaseResp);
+        }
+        
+    }else{
+        return({success:false});
+    }
+    
+}
+
 async function getNextChunk(uploadId){
     const resp = await getNextData(uploadId);
     return resp.data.current_chunk + 1;
 }
 
 
-export {initiateUpload, addNewChunk, completeUpload}
+export {initiateUpload, addNewChunk, completeUpload, completeProcessingUpload}
