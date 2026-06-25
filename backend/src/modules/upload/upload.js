@@ -1,12 +1,11 @@
 import {Router} from "express"
-import {v4 as uuidv4} from "uuid"
+
 const uploadRoute = Router();
 
 
 uploadRoute.post("/uploads/start",(req,res)=>{
     const uploadID = uuidv4();
     //upload id to supabase
-    
     res.send(JSON.stringify({uploadId:uploadId}));
 
 })
