@@ -82,16 +82,16 @@ async function completeUpload(uploadId){
     }
    
 }
-async function completeProcessingUpload(){
+async function completeProcessingUpload(uploadId){
     //process document
     const resp = await processUpload();
     //change supabase to reflecte completion
     if(resp.success){
         const table = await (await getClient()).from("upload");
-        const supabaseResp = await table.update({"is_processed":1});
+        const supabaseResp = await table.update({"is_processed":1}).eq("upload_id", uploadId);
         if(supabaseResp){
             //return export location
-            return resp.exportLocation;
+            return {success: true, exportLocation:resp.exportLocation};
         }else{
             throw new Error(supabaseResp);
         }
