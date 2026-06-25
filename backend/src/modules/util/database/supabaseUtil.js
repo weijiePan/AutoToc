@@ -85,9 +85,6 @@ async function getNextChunk(uploadId){
     const resp = await getNextData(uploadId);
     return resp.data.current_chunk + 1;
 }
-const start = await initiateUpload(5);
-const resp = await addNewChunk(start, "aa");
-const completeResp = await completeUpload(start);
-console.log(completeResp);
+
 
 export {initiateUpload, addNewChunk, completeUpload}
