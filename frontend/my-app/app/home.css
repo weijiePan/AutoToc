@@ -1,33 +1,79 @@
-/*#F5E7DE#F2BFA4
-Kaffestuggu*/
+    /*#F5E7DE#F2BFA4
+    Kaffestuggu*/
+    .main{
+        padding:0.5px;
+        height:100%;
+        width:100%;
+        overflow:hidden;
+        
+    }
+    .title{
+        margin:auto;
+        font-size:2em;
+        text-align:center;
+        color:#676666;
+    }
+    
+    .progress-side{
+        display:block;
+        height:80%;
+        box-sizing:border-box;
+        background-color:#F1F8E9;
+        padding:2em;
+        box-sizing:border-box;
+        width:100%;
+        height:100%;
+
+      
+    
+    }
+    @media screen and (min-width:1200px){
+        .progress-side{
+            width:20%;
+            vertical-align:top;
+            border-right:none;
+            display:inline-block;
+            border-right:2px solid #a6b09c;
+            box-sizing:border-box;
+            box-shadow:4px 0px 8px black;
+            z-index:1;
+        }
+    }
+    .documentDisplayContainer{
+        padding:2em;
+        display:inline-block;
+        box-sizing:border-box;
+        width:80%;
+        height:100%;
+        background-color:#F1F8E9;
+        overflow:auto;
+        
+    }
+    .documentNameDisplay{
+        display: flex;
+        row-gap:2em;
+        column-gap:20%;
+        flex-wrap:wrap;
+        justify-content:flex-start;
+        padding:3em;
+        box-sizing:border-box;
+    }
 
 
-.documentNameDisplay{
-    display: block;
-    height:70%;
-    width: 80%;
-    margin-top: 2em;
-    margin-left: auto;
-    margin-right: auto;
-    background-color: #5213f9;
-    padding: 2em;
-    padding-left: 2em;
-    border-radius: 0.5em;
-}
-#btnDiv{
-    display: flex;
-    justify-content: space-evenly;
-    width: 80%;
-    margin-left: auto;
-    margin-right: auto;
-    padding: 2em;
-}
-.btn{
-    font-size: 1.3em;
-    font-family:Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
-    color:#1D004F;
-    background-color: #b763f2;
-    width:7em;
-    height: 2em;
-    border-radius: 0.5em;
-}
+    #btnDiv{
+        display: flex;
+        justify-content: space-evenly;
+        width: 80%;
+        margin-left: auto;
+        margin-right: auto;
+        padding: 2em;
+    }
+    .btn{
+        font-size: 1.3em;
+        color:#473e56;
+        font-weight:bold;
+        background-color: #b763f2;
+        width:7em;
+        height: 2em;
+        border-radius: 0.5em;
+    }
