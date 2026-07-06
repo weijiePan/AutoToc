@@ -8,7 +8,6 @@ uploadRoute.post("/uploads/start", async(req,res)=>{//receives json specifying c
     //upload id to supabase
     const resp = await initiateUpload();
     res.send(JSON.stringify({uploadId:resp.data.id}));
-
 })
 uploadRoute.post("/uploads/upload/:uploadId", async (req,res)=>{
     const buffer = req.body;
@@ -39,8 +38,7 @@ uploadRoute.get("/uploads/complete/:uploadId", async (req,res)=>{
             res.end();
         }
     }
-    //respond if a success
-    //sends data back
+
 })
 
 

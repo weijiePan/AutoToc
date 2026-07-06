@@ -2,7 +2,9 @@ import express from "express"
 import dotenv from "dotenv"
 import path from "path"
 import cors from "cors";
-import {uploadRoute} from "./upload.js"
+import {uploadRoute} from "./documentProcessing.js"
+
+
 import {getClient, initiateUpload, getUploadData} from "../modules/util/database/supabaseUtil.js"
 const corsOption = {
     origin:"http://localhost:3000",
