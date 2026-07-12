@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "es6", // Compile to ES5 for broader compatibility
+    "module": "nodenext", // Use CommonJS modules (Node.js default),
+    "moduleResolution": "nodenext",
+    "sourceMap": true, // Generate source maps for debugging
+    "outDir": "dist", // Output compiled files to the `dist` folder
+    "rootDir": "src", // Define the root directory for your source files
+    "esModuleInterop": true, // Enable better compatibility with ES modules
+    "strict": true, // Enable strict type-checking options
+    "skipLibCheck": true, // Skip type-checking of library files,
+    "paths":{
+      "#features/*": ["./src/features/*"],
+      "#routes/*": ["./src/routes/*"],
+      "#tmp/*":["./src/tmp/*"],
+    }
+  },
+
+  "include": ["src/**/*"], // Include all files in the `src` directory
+  "exclude": ["node_modules"] // Exclude `node_modules` from compilation
+}

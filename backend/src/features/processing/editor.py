@@ -39,6 +39,7 @@ class Editor:
                     self.chapterList.append({"page":right, "chapterTitle":Editor.eliminateStr(item, str(right))})
                 else:
                     self.chapterList.append({"page":left, "chapterTitle":Editor.eliminateStr(item, str(left))})
+        reader.close()
         self.writeToBook()
     #scans all pages to find heading an creates a table of content from this
     def scanAllHeadings(self, tocEndPage):#tocEndPage->the last page of table of content
