@@ -13,6 +13,6 @@ function createBase64BlockId(currentChunk:number):string{
     
 }
 async function initiateUpload(){
-
+    
 
 }
