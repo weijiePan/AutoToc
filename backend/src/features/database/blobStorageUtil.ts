@@ -3,7 +3,7 @@ import path from "path"
 import fs from "fs"
 import {annotateDocument, importFolder, exportFolder} from "#features/processing/convert.js";
 export default class blobStorageUtil{
-    static async getUploadData(uploadId:string){
+    static async getBlobClient(uploadId:string){
         if(process.env.BLOB_URL){
             const containerClient = new ContainerClient(process.env.BLOB_URL);
             const blobClient = await containerClient.getBlockBlobClient(uploadId);
@@ -12,22 +12,23 @@ export default class blobStorageUtil{
             throw new Error("BLOB_URL invalid");
         }
     }
-    static async uploadBlock(uploadId:string, data:Blob, chunkId:string){
-        const blobClient = await blobStorageUtil.getUploadData(uploadId);
+    static async uploadBlock(uploadId:string, data:Buffer, chunkId:string){
+        const blobClient = await blobStorageUtil.getBlobClient(uploadId);
         const resp = await blobClient.stageBlock(
             chunkId, 
             data,
-            data.size
+            data.length
         );
         return resp;
     }
     static async completeUploadAzure(uploadId:string, chunkIds:string[]){
-        const blobClient = await blobStorageUtil.getUploadData(uploadId);
+        const blobClient = await blobStorageUtil.getBlobClient(uploadId);
         const resp = await blobClient.commitBlockList(chunkIds);
         return resp;
     }
     static async downloadFile(uploadId:string){
-        const blobClient = await blobStorageUtil.getUploadData(uploadId);
+        const blobClient = await blobStorageUtil.getBlobClient(uploadId);
+        
         const importLocation = path.join(importFolder, uploadId);
         const downloadStream = (await blobClient.download(0)).readableStreamBody;
         if(downloadStream){

@@ -9,14 +9,13 @@ const corsOption = {
     origin:"http://localhost:3000",
 }
 //resets env 
-const envPath = path.resolve(process.cwd(), ".env");
+const envPath = path.resolve(process.cwd() , "../../", ".env");
 dotenv.config({path:envPath});
 console.log("envPath", envPath);
 const server = express();
 const port = 3001;
 server.use(cors(corsOption));
-server.use(express.json());
-server.use(express.raw());
+
 server.use(uploadRoute);
 
 server.listen(port, ()=>{

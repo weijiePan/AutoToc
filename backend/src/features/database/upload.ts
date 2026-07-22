@@ -24,40 +24,43 @@ async function initiateUpload(fileName:string){
     //creates a row for tracking the progress of file upload/processing
     try{
         await supabaseUtil.createNewUpload(uploadId, fileName);
-    }catch(e){
-        return {success:false, data:null, error:e};
+         return {success:true, data:{uploadId:uploadId}, error:null};
+    }catch(e:any){
+        return {success:false, data:{uploadId:uploadId}, error:e.message + e.stack};
     }
-    return {success:true, data:{uploadId:uploadId}, error:null};
+   
 }
 
-async function uploadChunk(uploadId:string, data:Blob){
+async function uploadChunk(uploadId:string, data:Buffer){
     //create block id
     let currentChunk = null;
     let supabaseUpdated = false;
     let chunkUploaded = false;
     try{
-        currentChunk = (await supabaseUtil.getUploadData(uploadId)).data.tableRowData.current_chunk;
+        currentChunk = (await supabaseUtil.getUploadData(uploadId)).data.tableRowData.current_chunk;//{ tableRowData: undefined } is undefined
         const chunkId = createBase64BlockId(currentChunk);
         //update in supabase
+
         const newChunk = await supabaseUtil.addNewChunkToTable(uploadId,chunkId);
         supabaseUpdated = true;
         //upload to blob storage
         await blobStorageUtil.uploadBlock(uploadId, data, chunkId);
         chunkUploaded = true;
-        return {success:true, data:{currentChunk:newChunk }, error:null};
-    }catch(e){
-             
+        return {success:true, data:{currentChunk:newChunk}, error:null};
+    }catch(e:any){
         if(supabaseUpdated == true && chunkUploaded == false){
             //revert supabase change
-            const rowData = (await supabaseUtil.getUploadData(uploadId)).data.tableRowData;
-            const currentChunk = rowData.current_chunk - 1;
-            let chunks = rowData.chunk_id as Array<string>;
+            const rowData = (await supabaseUtil.getUploadData(uploadId)).data.tableRowData.current_chunk;
+            currentChunk = rowData.current_chunk - 1;
+            let chunks = rowData.chunk_id;
             chunks = chunks.slice(0, chunks.length-1);
-
             const client = await supabaseUtil.getTableClient(supabaseUtil.tableName);
             client.update({current_chunk:currentChunk, chunk_id:chunks}).eq("upload_id", uploadId);
         }
+        console.log(e.message);
+        console.log(e.stack);
         return{success:false, data:null, error:`chunk upload failed for ${uploadId}` + e};
+     
     }
 }
 async function completeUpload(uploadId:string){
@@ -87,6 +90,7 @@ async function processUpload(uploadId:string, tocStart:number, tocEnd:number){
         }
 }
 function downloadDocument(exportLocation:string, res:Response){
+    console.log(exportLocation);
     const fileStream = fs.createReadStream(exportLocation);
     fileStream.on("data",(chunk)=>{
         res.write(chunk);
