@@ -31,8 +31,8 @@
     "typescript": "^6.0.3"
   },
   "imports":{
-      "#features/*": "./src/features/*",
-      "#routes/*": "./src/routes/*",
-      "#tmp/*":"./src/tmp/*"
+      "#features/*": "./dist/features/*",
+      "#routes/*": "./dist/routes/*",
+      "#tmp/*":"./dist/tmp/*"
   }
 }

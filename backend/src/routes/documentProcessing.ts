@@ -1,44 +1,23 @@
-import {Router} from "express"
-import {addNewChunkToTable, completeSupabaseUpload, completeSupabaseProcessing} from "#features/database/supabaseUtil.js";
+import {Router, Request} from "express"
+import {initiateUpload, uploadChunk, completeUpload, processUpload, downloadDocument} from "#features/database/upload.js"
 import fs from "fs"
 const uploadRoute = Router();
-
-
-uploadRoute.post("/uploads/start", async(req,res)=>{//receives json specifying chunk size
+uploadRoute.get("/uploads/start", async(req:Request<{fileName:string}>,res)=>{//receives json specifying chunk size
     //upload id to supabase
-    // const resp = await initiateUpload();
-    // res.send(JSON.stringify({uploadId:resp.data.id}));
+    const resp = await initiateUpload(req.query.fileName as string);
+    res.json(resp);
 })
 uploadRoute.post("/uploads/upload/:uploadId", async (req,res)=>{
     const buffer = req.body;
     const uploadId = req.params.uploadId;
-    // //upload to aws
-    // //wait till upload is successful to return a response
-    // //generate and store chunk id in supabase
-    // const resp = await addNewChunk(uploadId, req.body);
-    // //give status:success or failure
-    // res.send(JSON.stringify(resp));
-
+    const resp = await uploadChunk(uploadId, buffer);
+    res.json(resp);
 })
 
 uploadRoute.get("/uploads/complete/:uploadId", async (req,res)=>{
     //upload id 
     const uploadId = req.params.uploadId;
-    //blob commmit everything
-    // const uploadResp = await completeUpload(uploadId);
-    // if(uploadResp.success){
-    //     //process file
-    //     const processingResp = await completeProcessingUpload(uploadId);
-    //     if(processingResp.success){
-    //         //stream file back to user
-    //         const readStream = fs.createReadStream(processingResp.data.exportLocation);
-    //         for await(const chunk of readStream){
-    //             res.write(chunk);
-    //         }
-    //         res.end();
-    //     }
-    // }
-
+    
 })
 
 
