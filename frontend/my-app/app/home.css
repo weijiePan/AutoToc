@@ -18,7 +18,7 @@
         display:block;
         height:80%;
         box-sizing:border-box;
-        background-color:#F1F8E9;
+        background-color:hsl(0, 0%, 8%);
         padding:2em;
         box-sizing:border-box;
         width:100%;
@@ -33,7 +33,6 @@
             vertical-align:top;
             border-right:none;
             display:inline-block;
-            border-right:2px solid #a6b09c;
             box-sizing:border-box;
             box-shadow:4px 0px 8px black;
             z-index:1;
@@ -45,13 +44,12 @@
         box-sizing:border-box;
         width:80%;
         height:100%;
-        background-color:#F1F8E9;
+        background-color:hsl(0, 0%, 10%);
         overflow:auto;
         
     }
     .documentNameDisplay{
         display: flex;
-        row-gap:2em;
         column-gap:20%;
         flex-wrap:wrap;
         justify-content:flex-start;

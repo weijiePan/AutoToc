@@ -5,15 +5,14 @@ import { useState, useEffect } from "react"
 import { useSearchParams , useRouter} from "next/navigation"
 import {getFileUrls, clearDatabase} from "./util/store"
 import Upload from "./upload/Upload"
-import DocumentChannel from "./components/documentDisplay/DocumentChannel";
-import EmptyDocumentChannel from "./components/documentDisplay/EmptyDocumentChannel"
 
+import DocumentDisplay from "./components/DocumentDisplay"
 type fileInfo = {
   name: string,
   file: ArrayBuffer,
 };
 
-type blobURL={url:string, name:string, status:0|1};
+type blobURL={url:string, name:string};
 export default function Home() {
   const status = {
     processing:0,
@@ -42,29 +41,22 @@ export default function Home() {
     //   console.log(blobAndName);
     // })
   }, [])
-  let documentDisplays;
+  let documentDisplays = [];
   if(blobURLS.length > 0){
-    documentDisplays = blobURLS.map(({url, name, status}) => 
-      status == 1?<DocumentChannel blobURL={url} name={name} key={name} ></DocumentChannel>:null
-    )
+    for(let blobUrl of blobURLS){
+        documentDisplays.push(<DocumentDisplay fileName={blobUrl.name} url={blobUrl.url}></DocumentDisplay>);
+    }
   }else{
-    documentDisplays = <>
-      <EmptyDocumentChannel></EmptyDocumentChannel>
-      <EmptyDocumentChannel></EmptyDocumentChannel>
-      <EmptyDocumentChannel></EmptyDocumentChannel>
-      <EmptyDocumentChannel></EmptyDocumentChannel>
-      <EmptyDocumentChannel></EmptyDocumentChannel>
-      <EmptyDocumentChannel></EmptyDocumentChannel>
-    </>
+    for(let i = 0; i < 10; i++){
+      documentDisplays.push(<DocumentDisplay fileName={""} url={""}></DocumentDisplay>)
+    }
   }
 
   return (
   <div className="main">
     <div className="progress-side">
-      <h3 className="title">Processing</h3>
     </div>
     <div className="documentDisplayContainer">
-      <h3 className="title">Processed Documents</h3>
       <div className="documentNameDisplay">
         {documentDisplays}
       </div>  
