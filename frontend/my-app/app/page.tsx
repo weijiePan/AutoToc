@@ -54,8 +54,12 @@ export default function Home() {
 
   return (
   <div className="main">
-    <div className="progress-side">
+    <div className="navigation">
+      <h3>Documents</h3>
+      <h3>Upload</h3>
     </div>
+    <hr className="navDivider"></hr>
+    <input className="search-bar" placeholder="Search"></input>
     <div className="documentDisplayContainer">
       <div className="documentNameDisplay">
         {documentDisplays}
