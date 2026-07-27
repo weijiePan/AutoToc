@@ -1,23 +1,23 @@
 
 import {insertFile} from "./store"
 const url = `http://localhost:3001`;
-async function initiateUpload(files:File[]) {
-    console.log("uploading");
-    //get data
-    const documentData = []//{id, documentLink}
-    for(const file of files){
-        console.log("upload initatied");
-        console.log(file.name);
-        const uploadResp = await uploadDocument(file, file.name);
-        if(!uploadResp.success){
-            return({success:false, errorMessage:`${uploadResp.uploadId} failed upload`});
-        }
-        documentData.push(uploadResp.downloadLink);
-    }
-    console.log(documentData);
-    return({success:true, documentData:documentData});
+// async function initiateUpload(files:File[]) {
+//     console.log("uploading");
+//     //get data
+//     const documentData = []//{id, documentLink}
+//     for(const file of files){
+//         console.log("upload initatied");
+//         console.log(file.name);
+//         const uploadResp = await uploadDocument(file, file.name);
+//         if(!uploadResp.success){
+//             return({success:false, errorMessage:`${uploadResp.uploadId} failed upload`});
+//         }
+//         documentData.push(uploadResp.downloadLink);
+//     }
+//     console.log(documentData);
+//     return({success:true, documentData:documentData});
 
-}
+// }
 async function uploadDocument(document:Blob, fileName:string, tocStart:Number, tocEnd:Number){
     console.log("ind document upload");
     const initiateEndPoint = "/uploads/start";
@@ -37,7 +37,7 @@ async function uploadDocument(document:Blob, fileName:string, tocStart:Number, t
     }
     const docStream = document.stream();
     console.log("started streaming");
-    for await(const chunk of docStream){
+    for await(const chunk of docStream as any){
         const chunkResp = await chunkUpload(uploadId, chunk);
         if(!chunkResp.success){
             console.log(chunkResp);
@@ -85,11 +85,11 @@ async function completeUpload(uploadId:string, tocStart:Number, tocEnd:Number){
         }
         const b = new Blob(fragments);
         console.log(b);
-        await insertFile(b, "", uploadId);
+        await insertFile(b, uploadId);
         return(URL.createObjectURL(b));
     }else{
         throw new Error("download request body null");
     }
     
 }
-export { initiateUpload, uploadDocument, completeUpload}
+export { uploadDocument, completeUpload}
