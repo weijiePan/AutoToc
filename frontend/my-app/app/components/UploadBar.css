@@ -1,0 +1,20 @@
+.documentUploadBar{
+    display:flex;
+    flex-direction:row;
+    justify-content:space-between;
+    align-items:center;
+    padding:0em 1em;
+    background-color:hsl(0, 0%, 15%);
+    width:100%;
+    box-sizing:border-box;
+    color:hsl(0, 0%, 70%);
+}   
+.documentUploadBar .right{
+    display:flex;
+    flex-direction:column;
+    width:30%;
+}
+.documentUploadBar .right input{
+    width:100%;
+    max-width:4em;
+}

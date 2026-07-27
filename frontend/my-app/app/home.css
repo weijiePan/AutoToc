@@ -12,7 +12,7 @@
     }
     .title{
         margin:auto;
-        font-size:2em;
+        font-size:1em;
         text-align:center;
         color:#676666;
     }
@@ -29,6 +29,7 @@
     }
     .navigation h3{
         margin:0;
+        font-size:1em;
     }
     .navDivider{
         width:80%;

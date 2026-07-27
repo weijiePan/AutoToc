@@ -4,8 +4,8 @@
     background-color:hsl(0, 0%, 15%);
     border:solid 2px hsl(0, 0%, 24%);
     color:hsl(0, 0%, 51%);
-    padding-left:2em;
-    padding-bottom:1em;
+    padding-left:1em;
+    font-size:0.7em;
     
 }
 .DocumentDisplay:hover{

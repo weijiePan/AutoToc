@@ -2,11 +2,19 @@
 import {useRouter} from "next/navigation"
 const databaseName = "documentsDatabase";
 const tableName = "document";
-function insertFile(file:Blob, fileName:string){
+
+
+function insertFile(file:Blob, fileName:string, uploadId:string){
+    console.log("file");
+    console.log(file);
+    console.log("fileName");
+    console.log(fileName);
+    console.log("uploadId");
+    console.log(uploadId);
     const request = window.indexedDB.open(databaseName, 1);
     request.onupgradeneeded = function(e){
         const db = request.result;
-        const store = db.createObjectStore(tableName, {keyPath:"filename"});
+        const store = db.createObjectStore(tableName, {keyPath:"uploadId"});
     } 
     request.onerror = function(e){
         console.error("indexedDB open error");
@@ -16,7 +24,7 @@ function insertFile(file:Blob, fileName:string){
         const db = request.result;
         const transactions = db.transaction(tableName, "readwrite");
         const documentStore = transactions.objectStore(tableName);
-        const req = documentStore.put({"filename":fileName, "file":file});
+        const req = documentStore.put({"uploadId":uploadId, "fileName":fileName, "file":file});
         req.onsuccess = ()=>{
                 db.close();
                 return(true);
@@ -26,14 +34,14 @@ function insertFile(file:Blob, fileName:string){
         }
     }
 }
-async function getFileUrls(){
+async function getFileUrls():Promise<{url:string, name:string}>{
     return new Promise((resolve, reject)=>{
         
         let objectURLS = [];
         const request = window.indexedDB.open(databaseName, 1);
         request.onupgradeneeded = function(e){
             const db = request.result;
-            const store = db.createObjectStore("document", {keyPath:"filename"});
+            const store = db.createObjectStore("document", {keyPath:"uploadId"});
             
         } 
         request.onerror = (e)=>{
@@ -45,19 +53,16 @@ async function getFileUrls(){
                 const transaction = db.transaction(tableName, "readonly");
                 const documentStore = transaction.objectStore(tableName);
                 const files = documentStore.getAll();
-                files.onsuccess = ()=>{
-                    
+                files.onsuccess = ()=>{ 
                     const res = files.result;
                     for(let i = 0; i < res.length; i++){
                         objectURLS.push({url:URL.createObjectURL(res[i].file), name:res[i].filename});
-                    //{url:string, name:string}
                     }
                     db.close();
                     resolve(objectURLS);
             }; 
             }else{
                 return([]);
-
             }
             
         }
@@ -78,7 +83,6 @@ function clearDatabase(router){
             window.location.reload();
             console.log("refreshed");
         }
-    
     }
 }
 export {insertFile, getFileUrls, clearDatabase};

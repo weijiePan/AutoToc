@@ -1,47 +1,55 @@
 
+import {insertFile} from "./store"
 const url = `http://localhost:3001`;
-async function initiateUpload(event:any) {
-   
+async function initiateUpload(files:File[]) {
+    console.log("uploading");
     //get data
-    event.preventDefault();
-    const formData = new FormData(event.target as HTMLFormElement);
-    const files = formData.getAll("file") as File[];
     const documentData = []//{id, documentLink}
     for(const file of files){
         console.log("upload initatied");
-        const uploadResp = await uploadDocument(file);
+        console.log(file.name);
+        const uploadResp = await uploadDocument(file, file.name);
         if(!uploadResp.success){
             return({success:false, errorMessage:`${uploadResp.uploadId} failed upload`});
         }
         documentData.push(uploadResp.downloadLink);
     }
+    console.log(documentData);
     return({success:true, documentData:documentData});
 
 }
-async function uploadDocument(document:Blob){
+async function uploadDocument(document:Blob, fileName:string, tocStart:Number, tocEnd:Number){
+    console.log("ind document upload");
     const initiateEndPoint = "/uploads/start";
     //initiate upload and get upload id
-    const initiateResp = await fetch(`${url}${initiateEndPoint}`,{
-        headers:{
-            "content-type":"application/json",
-        },
-        method:"POST",
-        body:undefined,
-    });
-    const respData= await initiateResp.json();
-    const uploadId = respData.uploadId;
+    const initiateResp = await fetch(`${url}${initiateEndPoint}?fileName=${fileName}`);
+    const respData = await initiateResp.json()
+    if(!respData.success){
+        console.log(respData);
+        return respData;
+    }
 
+    const uploadId = respData.data.uploadId;
+    if(!uploadId){
+        const err = "invalid/undefined uploadId";
+        console.log(err);
+        return({success:false, data:null, error:err});
+    }
     const docStream = document.stream();
+    console.log("started streaming");
     for await(const chunk of docStream){
         const chunkResp = await chunkUpload(uploadId, chunk);
         if(!chunkResp.success){
-            throw new Error("chunk upload fail");
+            console.log(chunkResp);
+            return(chunkResp);
         }
     }
-    const completion = await completeUpload(uploadId);
+
+    const completion = await completeUpload(uploadId, tocStart, tocEnd);
     //upload each chunks
-    return({success:true, uploadId:uploadId, downloadLink:completion});
+    return({success:true, data:{uploadId:uploadId}, downloadLink:completion});
 }
+
 async function chunkUpload(uploadId:string, data:Blob){
     const uploadEndPoint = "/uploads/upload";
     const resp = await fetch(`${url}${uploadEndPoint}/${uploadId}`,{
@@ -53,29 +61,35 @@ async function chunkUpload(uploadId:string, data:Blob){
         body:data,
     })
     const respMessage = await resp.json();
-    if(respMessage.success){
-        return respMessage;
-    }else{
-        throw new Error("failure upload", respMessage);
-    }
+    return respMessage;
   
 }
-async function completeUpload(uploadId:string){
+async function completeUpload(uploadId:string, tocStart:Number, tocEnd:Number){
     const completeEndPoint = `/uploads/complete`;
-    const resp = await fetch(`${url}${completeEndPoint}/${uploadId}`);
+    console.log("tocStart " + tocStart);
+    console.log("tocEnd " + tocEnd);
+    const resp = await fetch(`${url}${completeEndPoint}/${uploadId}?tocStart=${tocStart}&tocEnd=${tocEnd}`);
     const body = resp.body;
-    const reader = body.getReader();
-    let fragments = [];
-    while(true){
-        const {done, value} = await reader.read();
-        if(done){
-            break;
-        }else{
-            fragments.push(value);
+    if(body){
+        const reader = body.getReader();
+        let fragments = [];
+        while(true){
+            const {done, value} = await reader.read();
+            if(done){
+                break;
+            }else{
+                console.log("value");
+                console.log(value);
+                fragments.push(value);
+            }
         }
-
+        const b = new Blob(fragments);
+        console.log(b);
+        await insertFile(b, "", uploadId);
+        return(URL.createObjectURL(b));
+    }else{
+        throw new Error("download request body null");
     }
-    const b = new Blob(fragments);
-    return(URL.createObjectURL(b));
+    
 }
-export { initiateUpload}
+export { initiateUpload, uploadDocument, completeUpload}

@@ -26,6 +26,10 @@ header {
 
 .logo svg {
   margin-right: 0.5em;
+
+}
+.logo h1{
+  font-size:1.5em;
 }
 
 .right {
@@ -40,7 +44,7 @@ header {
   border: 2px solid hsl(240, 100%, 50%);
   border-radius:10px;
   font-family:sans-serif;
-  font-weight:700;;
+  font-weight:700;
 }
 
 
