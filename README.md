@@ -16,22 +16,16 @@ install packages
 cd ./backend
 npm i
 ```
-input environment variables
+create environment variables and store it in backend folder
 ```bash
-cd ./backend
 BLOB_URL=Microsoft Azure Storage SAS url
 SUPABASE_URL= Supabase database url
 SUPABASE_KEY= Supabase secret key
 ```
-compile typescript
+build typescript and run backend server
 ```bash
-cd ./backend
 tsc
-```
-run backend server 
-```bash
-cd ./backend/dist/routes
-node ./server.js
+node ./dist/routes/server.js
 ```
 setup and run frontend server
 ```bash
