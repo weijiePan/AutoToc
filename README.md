@@ -5,7 +5,6 @@ AutoToc makes electronic document navigation easier by attaching a structured in
 - Works for both **scanned** and non-scanned documents through optical character recognition and text parsing
 - Able to process all **PDF** documents
 ## Demo
-## Features
 ## Get Started
 Clone the project 
  ```bash
