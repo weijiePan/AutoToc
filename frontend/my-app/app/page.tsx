@@ -23,7 +23,9 @@ export default function Home() {
   const searchParams = useSearchParams();
   const router = useRouter();
   useEffect(() => {
+    console.log('start finding urls');
     getFileUrls().then((blobsAndName)=>{
+      console.log(blobsAndName);
       changeBlobURLS(blobsAndName);
     })  
   }, [])

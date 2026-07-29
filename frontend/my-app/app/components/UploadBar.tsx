@@ -14,7 +14,7 @@ export default function DocumentUploadBar({file, isInitiated}:{file:File, isInit
             console.log("num1" + tocStart);
             console.log("num2" + tocEnd);
             uploadDocument(file, file.name, tocStart, tocEnd).then((uploadResp)=>{
-                console.log(uploadResp);
+                console.log(uploadResp)
             })
         }
     },[isInitiated])

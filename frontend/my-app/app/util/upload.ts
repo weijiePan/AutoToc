@@ -85,6 +85,7 @@ async function completeUpload(uploadId:string, tocStart:Number, tocEnd:Number){
         }
         const b = new Blob(fragments);
         console.log(b);
+        
         await insertFile(b, uploadId);
         return(URL.createObjectURL(b));
     }else{

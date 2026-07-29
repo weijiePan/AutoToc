@@ -6,7 +6,6 @@ const databaseName = "documentsDatabase";
 const tableName = "document";
 import { createClient } from '@supabase/supabase-js'
 
-
 function insertFile(file:Blob, uploadId:string){
     const url = `http://localhost:3001`;    
     const request = window.indexedDB.open(databaseName, 1);
@@ -22,15 +21,10 @@ function insertFile(file:Blob, uploadId:string){
         const db = request.result;
         const transactions = db.transaction(tableName, "readwrite");
         const documentStore = transactions.objectStore(tableName);
-        const fileNameResp = await (await fetch(`${url}/${uploadId}`)).json();
-   
-        let fileName = "Failed to get file name";
-        if(fileNameResp.success){
-            fileName = fileNameResp.data.fileName
-        }
-        const req = documentStore.put({"uploadId":uploadId, "fileName":fileName, "file":file});
+        const req = documentStore.put({"uploadId":uploadId, "fileName":"", "file":file});
         req.onsuccess = ()=>{
                 db.close();
+                console.log(`insertion of ${uploadId}`);
                 return(true);
         }
         req.onerror = (e)=>{
@@ -39,6 +33,8 @@ function insertFile(file:Blob, uploadId:string){
     }
 }
 async function getFileUrls():Promise<{url:string, name:string}>{
+    const url = `http://localhost:3001`;
+    const endPoint = "/getFileName/"
     return new Promise((resolve, reject)=>{
         
         let objectURLS = [];
@@ -57,15 +53,23 @@ async function getFileUrls():Promise<{url:string, name:string}>{
                 const transaction = db.transaction(tableName, "readonly");
                 const documentStore = transaction.objectStore(tableName);
                 const files = documentStore.getAll();
-                files.onsuccess = ()=>{ 
+                console.log("started processing files");
+                files.onsuccess = async ()=>{ 
                     const res = files.result;
                     for(let i = 0; i < res.length; i++){
-                        objectURLS.push({url:URL.createObjectURL(res[i].file), name:res[i].filename});
+                        console.log(`${url}${endPoint}/${res[i].uploadId}`);
+                        const getFileNameResponse = await (await fetch(`${url}${endPoint}${res[i].uploadId}`)).json();
+                        if(getFileNameResponse.success){
+                        objectURLS.push({url:URL.createObjectURL(res[i].file), name:getFileNameResponse.data.fileName});
+                        }else{
+                            objectURLS.push({url:URL.createObjectURL(res[i].file), name:"file name not found"});
+                        }
                     }
                     db.close();
                     resolve(objectURLS as any);
-            }; 
+                }; 
             }else{
+                throw new Error("no table name");
                 return([]);
             }
             
