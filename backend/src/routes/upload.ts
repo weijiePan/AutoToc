@@ -1,21 +1,24 @@
 import {Router, Request} from "express"
-import {initiateUpload, uploadChunk, completeUpload, processUpload, downloadDocument} from "#features/database/upload.js"
+import {initiateUpload, uploadChunk, completeUpload, processUpload, downloadDocument} from "#features/upLogic.js"
 import fs from "fs"
 import express from "express"
+import supabaseUtil from "#features/database/supabaseUtil.js"
 const uploadRoute = Router();
 uploadRoute.get("/uploads/start", async(req:Request<{fileName:string}>,res)=>{//receives json specifying chunk size
     //upload id to supabase
     const resp = await initiateUpload(req.query.fileName as string);
-    res.json(resp);
+    if(resp.status == 200){
+        res.json(resp);
+    }else{
+        res.status(resp.status).json({message:resp.error});
+    }
 })
 uploadRoute.post("/uploads/upload/:uploadId",  express.raw({type: '*/*', limit:"20mb"}), async (req,res)=>{
     const buffer = req.body;
-    console.log(req.body);
     const uploadId = req.params.uploadId;
-    console.log('upload start' + req.params.uploadId);
     const resp = await uploadChunk(uploadId, buffer);
-    console.log('upload end');
-    res.json(resp)
+    res.status(resp.status);
+    res.json({message:resp.error});
 })
 
 uploadRoute.get("/uploads/complete/:uploadId", async (req,res)=>{
@@ -23,19 +26,22 @@ uploadRoute.get("/uploads/complete/:uploadId", async (req,res)=>{
     const uploadId = req.params.uploadId;
     const tocStart = Number(req.query.tocStart);
     const tocEnd = Number(req.query.tocEnd);
+
     try{
-        await completeUpload(uploadId);
-        if(!tocStart || !tocEnd){
+        if(tocStart == null || tocEnd == null){
             throw new Error("invalid or no start page and end page");
         }
-        console.log('finished upload');
+        if(!uploadId){
+            throw new Error("lack of uploadId");
+        }
+        await completeUpload(uploadId);
+       
+        
         const processingResp = await processUpload(uploadId, tocStart, tocEnd);
         if(processingResp){
             const exportLocation = processingResp.data.exportLocation;
             await downloadDocument(exportLocation, res);//uploadId should be export location
-            console.log('finised processing');
             //clean up files
-            res.json({success:true, data:null, error:null})
         }else{
             throw new Error("export location empty");
         }
@@ -43,10 +49,25 @@ uploadRoute.get("/uploads/complete/:uploadId", async (req,res)=>{
     }catch(e:any){
         console.log(e.message);
         console.log(e.stack);
-        res.json({success:false, data:null, error:"unable to complete upload/processing"});
     }
     
     
+})
+uploadRoute.get("/getFileName/:uploadId", async (req,res)=>{
+    try{
+        const uploadId = req.params.uploadId;
+        const resp = await supabaseUtil.getUploadData(uploadId);
+        if(!resp.success){
+            res.send({success:false, data:null, error:"invalid uploadId"});
+        }else{
+            res.json({success:true, data:{fileName:resp.data.tableRowData.file_name}, error:null});
+        }
+    }catch(e){
+        res.status(400);
+        res.json({message:"invalid uploadId"});
+    }
+  
+
 })
 
 

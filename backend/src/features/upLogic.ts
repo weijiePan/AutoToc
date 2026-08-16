@@ -2,7 +2,11 @@ import {v4 as uuidv4} from "uuid"
 import supabaseUtil from "#features/database/supabaseUtil.js"
 import blobStorageUtil from "#features/database/blobStorageUtil.js"
 import type {Response} from "express"
+import type {result} from "#src/type.ts"
+
 import fs from "fs"
+
+import {credentialError, MissingUploadError} from "#src/error.js"
 function createBase64BlockId(currentChunk:number):string{
     const s = 8;
     let chunk = currentChunk.toString();
@@ -16,61 +20,69 @@ function createBase64BlockId(currentChunk:number):string{
     
 }
 
-async function initiateUpload(fileName:string){
+async function initiateUpload(fileName:string):Promise<result>{
     if(fileName == "" || fileName == null){
-        return {success:false, data:null, error:"empty fileName or no fileName"};
+        return {data:null, error:"empty file name or no file name", status:400};
     }
     const uploadId = uuidv4();
     //creates a row for tracking the progress of file upload/processing
     try{
         await supabaseUtil.createNewUpload(uploadId, fileName);
-         return {success:true, data:{uploadId:uploadId}, error:null};
+         return {data:{uploadId:uploadId}, error:"", status:200};
     }catch(e:any){
-        return {success:false, data:{uploadId:uploadId}, error:e.message + e.stack};
+        return { data:{uploadId:uploadId}, error:"Internal server error", status:500};
     }
    
 }
 
-async function uploadChunk(uploadId:string, data:Buffer){
+async function uploadChunk(uploadId:string, data:Buffer):Promise<result>{
     //create block id
+    console.log(`uploadChunk uploadId ${uploadId}`);
     let currentChunk = null;
     let supabaseUpdated = false;
     let chunkUploaded = false;
+    console.log(`data length:${data.length}`);
     try{
+        if(data.length < 1){
+            return({data:null, error:"empty chunk upload", status:400});
+        }
         currentChunk = (await supabaseUtil.getUploadData(uploadId)).data.tableRowData.current_chunk;//{ tableRowData: undefined } is undefined
-        const chunkId = createBase64BlockId(currentChunk);
+        const chunkId = createBase64BlockId(Number(currentChunk));
         //update in supabase
-
         const newChunk = await supabaseUtil.addNewChunkToTable(uploadId,chunkId);
         supabaseUpdated = true;
         //upload to blob storage
+        console.log("added");
         await blobStorageUtil.uploadBlock(uploadId, data, chunkId);
+        
         chunkUploaded = true;
-        return {success:true, data:{currentChunk:newChunk}, error:null};
+        
+        return {data:{currentChunk:newChunk}, error:"", status:200};
     }catch(e:any){
-        if(supabaseUpdated == true && chunkUploaded == false){
-            //revert supabase change
-            const rowData = (await supabaseUtil.getUploadData(uploadId)).data.tableRowData.current_chunk;
-            currentChunk = rowData.current_chunk - 1;
-            let chunks = rowData.chunk_id;
-            chunks = chunks.slice(0, chunks.length-1);
-            const client = await supabaseUtil.getTableClient(supabaseUtil.tableName);
-            client.update({current_chunk:currentChunk, chunk_id:chunks}).eq("upload_id", uploadId);
-        }
         console.log(e.message);
-        console.log(e.stack);
-        return{success:false, data:null, error:`chunk upload failed for ${uploadId}` + e};
-     
+        if(e instanceof credentialError){
+            console.log('credential fail');
+            console.log(e.stack);
+            return({data:null, error:"internal server error", status:500});
+        }
+        if(e instanceof MissingUploadError){
+            return({data:null, error:`upload id not found for ${uploadId}`, status:404});
+        }
+        return{data:null, error:`chunk upload failed for ${uploadId}`, status:500};
     }
 }
 async function completeUpload(uploadId:string){
-    try{
-        const chunkIds = (await supabaseUtil.getUploadData(uploadId)).data.tableRowData.chunk_id;
-        await blobStorageUtil.completeUploadAzure(uploadId, chunkIds);
-        await supabaseUtil.completeUpload(uploadId);
-    }catch(e){
-        throw new Error("unable to finalize upload" + e);
+    console.log("normal upload id");
+    console.log(`uploadId ${uploadId}`);
+    const chunkIds = (await supabaseUtil.getUploadData(uploadId)).data.tableRowData.chunk_id;
+    console.log(`Upload`)
+    console.log(`chunk ids ${chunkIds}`);
+    if(chunkIds.length <= 0 ){
+        throw new Error("uploadId not found in database");
     }
+    await blobStorageUtil.completeUploadAzure(uploadId, chunkIds);
+    await supabaseUtil.completeUpload(uploadId);
+    
     
 }
 
@@ -90,8 +102,11 @@ async function processUpload(uploadId:string, tocStart:number, tocEnd:number){
         }
 }
 function downloadDocument(exportLocation:string, res:Response){
-    console.log(exportLocation);
     const fileStream = fs.createReadStream(exportLocation);
+    fileStream.on("error",(err)=>{
+        throw new Error(err.toString());
+        throw new Error("error opening file/ streaming from read stream");
+    });
     fileStream.on("data",(chunk)=>{
         res.write(chunk);
     });

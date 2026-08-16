@@ -2,7 +2,7 @@ import express from "express"
 import dotenv from "dotenv"
 import path from "path"
 import cors from "cors";
-import {uploadRoute} from "./documentProcessing.js"
+import {uploadRoute} from "./upload.js"
 
 
 const corsOption = {
