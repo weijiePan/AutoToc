@@ -18,8 +18,11 @@ async function annotateDocument(documentName:string, tocStart:number, tocEnd:num
     return new Promise<{success:boolean}>((resolve, reject) => {
         let editing = spawn(pythonLocation, [editorLocation, tocStart.toString(), tocEnd.toString(), importLocation, exportLocation]);
         editing.stderr.on("data", (err) => {
-            throw new Error(err.toString);
+            console.log(err.toString());
         });
+        editing.stdout.on("data", (data)=>{
+            console.log(data.toString());
+        } );
         editing.on("close", (code) => {
             console.log("end");
             resolve({success:true});

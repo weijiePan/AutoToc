@@ -34,15 +34,13 @@ export default class supabaseUtil{
     }
     //adds the id to table and returns id
     static async  addNewChunkToTable(uploadId:string, chunkId:string){
-        console.log("adding new chunk");
-        console.log(`uploadId:${uploadId}`);
-        console.log(`chunkId ${chunkId}`);
+     
         const tableData = await supabaseUtil.getUploadData(uploadId);
         const table = await supabaseUtil.getTableClient();
         const chunks = tableData.data.tableRowData.chunk_id;
-        console.log("id addition response");
+  
         const supabaseResp = await table.update({"chunk_id":[...chunks, chunkId], current_chunk:tableData.data.tableRowData.current_chunk + 1}).eq("upload_id", uploadId);
-        console.log(supabaseResp);
+  
         return tableData.data.tableRowData.current_chunk + 1; //work on error handling
     }
     static async  completeUpload(uploadId:string){

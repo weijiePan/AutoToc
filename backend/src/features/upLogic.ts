@@ -37,11 +37,11 @@ async function initiateUpload(fileName:string):Promise<result>{
 
 async function uploadChunk(uploadId:string, data:Buffer):Promise<result>{
     //create block id
-    console.log(`uploadChunk uploadId ${uploadId}`);
+
     let currentChunk = null;
     let supabaseUpdated = false;
     let chunkUploaded = false;
-    console.log(`data length:${data.length}`);
+
     try{
         if(data.length < 1){
             return({data:null, error:"empty chunk upload", status:400});
@@ -52,7 +52,6 @@ async function uploadChunk(uploadId:string, data:Buffer):Promise<result>{
         const newChunk = await supabaseUtil.addNewChunkToTable(uploadId,chunkId);
         supabaseUpdated = true;
         //upload to blob storage
-        console.log("added");
         await blobStorageUtil.uploadBlock(uploadId, data, chunkId);
         
         chunkUploaded = true;
@@ -72,11 +71,9 @@ async function uploadChunk(uploadId:string, data:Buffer):Promise<result>{
     }
 }
 async function completeUpload(uploadId:string){
-    console.log("normal upload id");
-    console.log(`uploadId ${uploadId}`);
+
     const chunkIds = (await supabaseUtil.getUploadData(uploadId)).data.tableRowData.chunk_id;
-    console.log(`Upload`)
-    console.log(`chunk ids ${chunkIds}`);
+
     if(chunkIds.length <= 0 ){
         throw new Error("uploadId not found in database");
     }

@@ -19,7 +19,6 @@ export default class blobStorageUtil{
                 throw new MissingUploadError("empty upload data");
             }
             const blobClient = await blobStorageUtil.getBlobClient(uploadId);
-            console.log(`blob length${data.length}`);
             const resp = await blobClient.stageBlock(
                 chunkId, 
                 data,
@@ -32,8 +31,7 @@ export default class blobStorageUtil{
        
     }
     static async completeUploadAzure(uploadId:string, chunkIds:string[]){
-        console.log(`completeUploadAzure id ${uploadId}`);
-        console.log(chunkIds);
+
         const blobClient = await blobStorageUtil.getBlobClient(uploadId);
         const resp = await blobClient.commitBlockList(chunkIds);
         return resp;

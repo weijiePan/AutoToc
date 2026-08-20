@@ -7,9 +7,41 @@ class Editor:
         self.chapterList = []#holds all chapter name found and their respective page 
         self.importLocation = importLocation
         self.exportLocation = exportLocation
-        #{"page":i, "chapterTitle":self.currentChapter}
+
+
+    #sometime table of content page is not the physical page 
+    #goes through a minimal number of page to generate a mapping of chapter title to page
+    #this mapping is compared to self.chapterList 
+    #so that changes may be made to compensate for difference between table of content page and actual physical pages
+    def compensateVisitor(self, text):
+            self.currentChapter += text
+
+    def compensateForPage(self, startPage, endPage, reader):
+        #a placeholder for holding headings found, reset plaecholder
+        print("compensation starts")
+        self.currentChapter = ""
+        compensator = 0
+        for i in range(startPage, endPage):
+            #go through each page and finds heading > size 50, indicating heading of a chapter
+            reader.pages[i].extract_text(visitor_text=lambda text, cm, tm, font_dict, font_size: print(font_size) if(font_size>10) else None)
+            #if heading is found and not null, search for corresponding heading in chapterList
+        #     if(self.currentChapter != ""):
+        #         #search for heading 
+        #         print("heading found by page scan:", self.currentChapter)
+        #         for page, title in self.chapterList:
+        #             print("comparison:")
+        #             print("heading 1:", self.currentChapter)
+        #             print("heading 2", title, " p:", page)
+        #             if(title == self.currentChapter):
+        #                 compensator = i - page
+        #                 break
+        # #update all pages according to compensator
+        # for item in self.chapterList:
+        #     item.page += compensator
+
+    #{"page":i, "chapterTitle":self.currentChapter}
     #scans the items of table of content to create a table of content
-    #endPage is exclusive
+    #endPage is exclusive       
     def scanTableOfContentPage(self, startPage, endPage):
 
         reader = PdfReader(stream=self.importLocation)
@@ -32,13 +64,14 @@ class Editor:
                         self.chapterList.append({"page":right, "chapterTitle":Editor.eliminateStr(item, str(right))})
                     except:
                         print("exception: right:", right, "item", item)
-                    
                 elif(right == None):
                     self.chapterList.append({"page":left, "chapterTitle":Editor.eliminateStr(item, str(left))})
                 elif(right > left):
                     self.chapterList.append({"page":right, "chapterTitle":Editor.eliminateStr(item, str(right))})
                 else:
                     self.chapterList.append({"page":left, "chapterTitle":Editor.eliminateStr(item, str(left))})
+        print("compensate for pages")
+        self.compensateForPage(0, 20, reader)
         reader.close()
         self.writeToBook()
     #scans all pages to find heading an creates a table of content from this
