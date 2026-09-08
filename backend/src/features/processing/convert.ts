@@ -5,7 +5,7 @@ import path from "path";
 
 const srcFolder = path.join(path.dirname(fileURLToPath(import.meta.url)), "../", "../");
 
-const pythonLocation = "/usr/bin/python3";
+const pythonLocation = "/venv/bin/python3";
 const editorLocation = path.resolve(srcFolder, "features", "processing", "editor.py");
 const tmpFolder = path.resolve(srcFolder, "tmp");
 const importFolder = path.join(tmpFolder, "import");
