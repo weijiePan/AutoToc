@@ -4,7 +4,7 @@ import "./home.css"
 import { useState, useEffect } from "react"
 import { useRouter} from "next/navigation"
 import {getFileUrls, clearDatabase} from "./util/store"
-import Upload from "./upload/Upload"
+import { UploadProvider} from "./context/uploadContext"
 
 import DocumentDisplay from "./components/DocumentDisplay"
 type fileInfo = {
@@ -39,34 +39,36 @@ export default function Home() {
     }
   }
   return (
-  <div className="main">
-    <div className="navigation">
-      <h3 onClick={()=>{
-        changeIsDocumentsPage(true);
-      }}>Documents</h3>
-      <h3 onClick={
-        ()=>{
-          changeIsDocumentsPage(false);
+    <UploadProvider>
+      <div className="main">
+        <div className="navigation">
+          <h3 onClick={()=>{
+            changeIsDocumentsPage(true);
+          }}>Documents</h3>
+          <h3 onClick={
+            ()=>{
+              changeIsDocumentsPage(false);
+            }
+          }>Upload</h3>
+        </div>
+        <hr className="navDivider"></hr>
+        {
+          isDocumentsPage?
+          <>
+        
+          <input className="search-bar" placeholder="Search"></input>
+          <div className="documentDisplayContainer">
+            <div className="documentNameDisplay">
+              {documentDisplays}
+            </div>  
+          </div>
+          </>:
+          <>
+            <p></p>
+          </>
         }
-      }>Upload</h3>
+    
     </div>
-     <hr className="navDivider"></hr>
-    {
-      isDocumentsPage?
-      <>
-     
-      <input className="search-bar" placeholder="Search"></input>
-      <div className="documentDisplayContainer">
-        <div className="documentNameDisplay">
-          {documentDisplays}
-        </div>  
-      </div>
-      </>:
-      <>
-        <p></p>
-        <Upload></Upload>
-      </>
-    }
-   
-  </div>)
+    </UploadProvider>
+  )
 }
