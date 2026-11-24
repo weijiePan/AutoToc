@@ -63,11 +63,8 @@ def pypdf_read_lines(pdf_source:str, page:int):
     if(page < 0): return(None)
     pdf_reader = PdfReader(pdf_source) 
     page = pdf_reader.pages[page]
-    lines = page.extract_text(extraction_mode="layout", layout_mode_space_vertically=False)
-    return lines
-#extract the chapter to page mapping from a line
-#object with 
-# {
-    #rejection:percent of lines rejected
-    #mapping:[{chapter:str, page:int}]
-# }
+    lines = page.extract_text(extraction_mode="layout")
+    if(lines == ""):
+        lines =  page.extract_text()
+    #extraction_mode=layout can cause some pages to not show up
+    return lines.split("\n")
