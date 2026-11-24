@@ -13,9 +13,6 @@ export default class supabaseUtil{
         const dataBaseClient = await createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
         const tableClient = await dataBaseClient.from(supabaseUtil.tableName);
         return tableClient;
-            
-            
-     
         
     }
     static async getUploadData(uploadId:string):Promise<successSupabase>{ 
@@ -29,9 +26,7 @@ export default class supabaseUtil{
         
     }
     static async createNewUpload(uploadId:string, fileName:string){
-        const client = await supabaseUtil.getTableClient();
-        const resp = await client.insert([{upload_id:uploadId, current_chunk:0, chunk_id:[], is_uploaded:false, is_processed:false, file_name:fileName }])
-    }
+     
     //adds the id to table and returns id
     static async  addNewChunkToTable(uploadId:string, chunkId:string){
      
@@ -43,19 +38,13 @@ export default class supabaseUtil{
   
         return tableData.data.tableRowData.current_chunk + 1; //work on error handling
     }
-    static async  completeUpload(uploadId:string){
-        const table = await supabaseUtil.getTableClient();
-        const rowInfo = await supabaseUtil.getUploadData(uploadId)
-        const chunkId = rowInfo.data.tableRowData.chunk_id;
-        const supabaseResp = await table.update({"is_uploaded":1}).eq("upload_id", uploadId);
-        return supabaseResp;
+    static async  insertProcessedDocument(uploadId:string, fileName:string, size:number){
+        const client = await supabaseUtil.getTableClient();
+        const resp = await client.insert([{id:uploadId, filename:fileName, filesize:size}]);
+        if(resp.status == 200) throw new Error("invalid processed document insert");
+        
     }
-    static async  completeProcessing(uploadId:string){
-        const table = await supabaseUtil.getTableClient();
-        const supabaseResp = await table.update({"is_processed":1}).eq("upload_id", uploadId);
-        return supabaseResp;
-    }
-
+ 
 }
 
 

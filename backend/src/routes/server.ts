@@ -3,19 +3,20 @@ import dotenv from "dotenv"
 import path from "path"
 import cors from "cors";
 import {uploadRoute} from "./upload.js"
-
+import {ProcessingQueue} from "../model/ProcessingQueue.js"
 
 const corsOption = {
-    origin:"https://auto-toc.vercel.app/",
+    origin:"https://auto-toc.vercel.app",
 }
-//resets env 
+const queue = new ProcessingQueue();
 const envPath = path.resolve(process.cwd() , "../../", ".env");
 console.log("envPath", envPath);
 const server = express();
 const port = 3001;
 server.use(cors(corsOption));
+server.use(express.json());
+server.use("/uploads", uploadRoute);
 
-server.use(uploadRoute);
 
 server.listen(port, '',()=>{
     console.log(`listenig on http://localhost:${port}`);

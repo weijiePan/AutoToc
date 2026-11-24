@@ -1,0 +1,24 @@
+Code snippet
+
+@startuml
+autonumber
+
+participant "DOCUMENT" as DOC
+participant "TOC_IDENTIFICATION" as TOC
+participant "MAPPING_EXTRACTION" as MAP
+participant "MATCH PAGE EXTRACT WITH ACTUAL PAGE" as EX_TO_AC
+participant "ATTACH MAPPING" as ATTACH
+
+DOC -> TOC : FIND ALL THE TOC PAGES
+activate TOC
+TOC -> MAP : EXTRACT THE MAPPINGS
+activate MAP
+ACTIVATE EX_TO_AC
+MAP -> EX_TO_AC : MATCH PAGE EXTRACT WITH ACTUAL PAGE
+deactivate EX_TO_AC
+EX_TO_AC -> ATTACH : 
+activate ATTACH
+deactivate ATTACH
+deactivate MAP
+
+@enduml

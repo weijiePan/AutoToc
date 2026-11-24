@@ -13,6 +13,12 @@ export default class blobStorageUtil{
                 throw new credentialError("blob url missing");
             }
     }
+    static async getBlobSize(uploadId:string){
+        const client = await blobStorageUtil.getBlobClient(uploadId);
+        const properties = await client.getProperties();
+        return properties.contentLength;
+
+    }
     static async uploadBlock(uploadId:string, data:Buffer, chunkId:string){
         try{
             if(data.length <= 0 ){
