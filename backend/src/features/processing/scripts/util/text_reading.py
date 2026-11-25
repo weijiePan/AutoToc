@@ -4,6 +4,23 @@ import pytesseract
 from pytesseract import Output
 from .image_util import pdf_to_img_specific_pg
 from pypdf import PdfReader
+#check the word count in a random selection of page
+#if no word found, then it is scanned
+def is_scanned(pdf_source:str):
+    arr = [0.2, 0.4, 0.45, 0.65, 0.7, 0.8]
+    pdf_reader = PdfReader(pdf_source) 
+    not_scanned = 0
+    for i in arr:
+        target_pg = int(i * len(pdf_reader.pages))
+        txt = pdf_reader.pages[target_pg].extract_text()
+        if(len(txt) > 0):
+            not_scanned += 1
+    return False if ((not_scanned / len(arr)) > 0.3) else True
+def read_lines(pdf_source:str){
+    if(is_scanned(pdf_source)):
+        
+    else:    
+}
 #group together words based on vertica position 
 #return all the lines in a page
 def ocr_read_lines(
@@ -25,8 +42,9 @@ def ocr_read_lines(
             )
     finally:
         Path(image_path).unlink(missing_ok=True)
-
-    words = df[df["text"].notna() & (df["text"].str.strip() != "")].copy()
+    text_series = df["text"].astype(str)
+    words = df[df["text"].notna() & (text_series.str.strip() != "")].copy()
+    words["text"] = text_series.loc[words.index].str.strip()
     if words.empty:
         return []
 
