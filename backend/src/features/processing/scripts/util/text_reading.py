@@ -6,9 +6,9 @@ from .image_util import pdf_to_img_specific_pg
 from pypdf import PdfReader
 #check the word count in a random selection of page
 #if no word found, then it is scanned
-def is_scanned(pdf_source:str):
+def is_scanned(pdf_source:str, reader=None):
     arr = [0.2, 0.4, 0.45, 0.65, 0.7, 0.8]
-    pdf_reader = PdfReader(pdf_source) 
+    pdf_reader = PdfReader(pdf_source) if reader == None else reader 
     not_scanned = 0
     for i in arr:
         target_pg = int(i * len(pdf_reader.pages))
@@ -16,11 +16,18 @@ def is_scanned(pdf_source:str):
         if(len(txt) > 0):
             not_scanned += 1
     return False if ((not_scanned / len(arr)) > 0.3) else True
-def read_lines(pdf_source:str){
+def read_lines(pdf_source:str, page:int, reader=None):
+    pdf_reader = PdfReader(pdf_source) if reader == None else reader 
+    lines = None
     if(is_scanned(pdf_source)):
-        
+        lines = ocr_read_lines(pdf_source=pdf_source, page=page, reader = reader)
     else:    
-}
+        lines = pypdf_read_lines(pdf_source=pdf_source, page=page)
+        if(len(lines) == 0):
+            lines = ocr_read_lines(pdf_source=pdf_source, page=page)
+    return lines
+        
+
 #group together words based on vertica position 
 #return all the lines in a page
 def ocr_read_lines(
@@ -77,9 +84,10 @@ def ocr_read_lines(
         for group in lines
     ]
 #extract the lines from a page by reading the pdf
-def pypdf_read_lines(pdf_source:str, page:int):
+def pypdf_read_lines(pdf_source:str, page:int, reader=None):
     if(page < 0): return(None)
-    pdf_reader = PdfReader(pdf_source) 
+    page -= 1
+    pdf_reader = PdfReader(pdf_source) if reader == None else reader 
     page = pdf_reader.pages[page]
     lines = page.extract_text(extraction_mode="layout")
     if(lines == ""):
